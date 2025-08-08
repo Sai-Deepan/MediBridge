@@ -92,6 +92,7 @@ https://youtu.be/DDzoH_HGP9g
 ## OCR Setup Instructions
 
 MediBridge uses Optical Character Recognition (OCR) to convert medical documents and images into text for translation.
+"Use Headphones for better voice detection"
 
 ### Step 1: Install Tesseract OCR Engine
 
@@ -163,6 +164,7 @@ Effective communication in healthcare is crucial. MediBridge ensures patients an
 For questions, issues, or contributions, please open an issue or contact us via GitHub.
 
 Thank you for using MediBridge! Bridging language gaps in healthcare, one translation at a time.
+
 
 
 
