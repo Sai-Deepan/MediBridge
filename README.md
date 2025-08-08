@@ -23,8 +23,7 @@
 ---
 
 ## Demo
-
-[*(Add screenshots or GIFs demonstrating translation and OCR features here)*](https://www.youtube.com/watch?v=DDzoH_HGP9g)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/DDzoH_HGP9g" frameborder="0" allowfullscreen></iframe>
 
 ---
 
@@ -167,6 +166,7 @@ Effective communication in healthcare is crucial. MediBridge ensures patients an
 For questions, issues, or contributions, please open an issue or contact us via GitHub.
 
 Thank you for using MediBridge! Bridging language gaps in healthcare, one translation at a time.
+
 
 
 
