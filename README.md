@@ -23,8 +23,8 @@
 ---
 
 ## Demo
-<iframe width="560" height="315" src="https://www.youtube.com/embed/DDzoH_HGP9g" frameborder="0" allowfullscreen></iframe>
-
+[<iframe width="560" height="315" src="https://www.youtube.com/embed/DDzoH_HGP9g" frameborder="0" allowfullscreen></iframe>
+](https://youtu.be/DDzoH_HGP9g)
 ---
 
 ## Tech Stack
