@@ -7,7 +7,6 @@ import sounddevice as sd
 import scipy.io.wavfile as wav
 import pyttsx3
 from gtts import gTTS
-from faster_whisper import WhisperModel
 import pygame
 import os
 import random
@@ -17,7 +16,13 @@ from tkinter import filedialog, StringVar
 pytesseract.pytesseract.tesseract_cmd = r"C:\\Python_Libraries\\tesseract.exe"
 
 # ========== SPEECH SETUP ==========
-model = WhisperModel("base")
+from faster_whisper import WhisperModel
+
+model = WhisperModel("base", device="cpu", compute_type="int8")
+segments, info = model.transcribe("audio.wav", beam_size=5)
+
+for segment in segments:
+    print(f"[{segment.start:.2f}s --> {segment.end:.2f}s] {segment.text}")
 
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
@@ -79,7 +84,7 @@ def speak(text, lang='en'):
             os.remove(filename)
 
 def record_audio(filename="audio.wav", duration=5, fs=16000):
-    print("Recording...")
+    print("🎤 Recording...")
     audio = sd.rec(int(duration * fs), samplerate=fs, channels=1)
     sd.wait()
     wav.write(filename, fs, audio)
@@ -124,22 +129,56 @@ def main_page():
     CTkButton(master=main_view, text="Quit", fg_color="transparent", font=("Arial Bold", 8), text_color="black", width=8, border_width=2, border_color='black', corner_radius=32, command=quit_program).pack(anchor="se", pady=(0, 20), padx=(0, 20))
 
 def echocare_voice_bot():
+    speak("Speak now to begin.", "en")
     record_audio("audio.wav", duration=5)
-    text, lang = transcribe_audio("audio.wav")
-    print(f"You said: {text}")
-    if lang == "en":
-        speak("What happened to your health?", lang)
-        speak("Mention a few symptoms.", lang)
-        record_audio("symptoms.wav", duration=30)
-        symptom_text, _ = transcribe_audio("symptoms.wav")
-        print("Symptoms:", symptom_text)
-    else:
-        speak("உங்களுக்கேன்னா ஆயிருக்கு?", lang)
-        speak("அறிகுறிகள் சொல்லுங்கள்.", lang)
-        record_audio("symptoms.wav", duration=30)
-        symptom_text, symptom_lang = transcribe_audio("symptoms.wav")
-        translated = translate_text(symptom_text, dest_lang="en")
-        print("Translated:", translated)
+    try:
+        text, lang = transcribe_audio("audio.wav")
+        print(f"You said: {text}")
+
+        exit_commands = ["exit", "விடைபெறு", "अलविदा"]
+        if any(exit_cmd in text.lower() for exit_cmd in exit_commands):
+            speak("Goodbye! Take care.", lang)
+            return
+
+        if lang == "en":
+            speak("Nice to hear from you!", lang)
+            speak("What happened to your health?", lang)
+            speak("Mention a few symptoms.", lang)
+            record_audio("symptoms.wav", duration=30)
+            symptom_text, _ = transcribe_audio("symptoms.wav")
+            print("Symptoms:", symptom_text)
+
+        elif lang == "ta":
+            speak("நீங்கள் நன்றாக இருக்கிறீர்கள் என கேட்டு மகிழ்ச்சி!", lang)
+            speak("உங்களுக்கேன்னா ஆயிருக்கு?", lang)
+            speak("சில அறிகுறிகள் சொல்லுங்கள்.", lang)
+            record_audio("symptoms.wav", duration=30)
+            symptom_text, _ = transcribe_audio("symptoms.wav")
+            print("Symptoms (TA):", symptom_text)
+            translated = translate_text(symptom_text, dest_lang="en")
+            print("Translated:", translated)
+
+        elif lang == "hi":
+            speak("आपसे यह सुनकर अच्छा लगा!", lang)
+            speak("आपके स्वास्थ्य को क्या हुआ?", lang)
+            speak("क्या आप कुछ लक्षण बता सकते हैं?", lang)
+            record_audio("symptoms.wav", duration=30)
+            symptom_text, _ = transcribe_audio("symptoms.wav")
+            print("Symptoms (HI):", symptom_text)
+            translated = translate_text(symptom_text, dest_lang="en")
+            print("Translated:", translated)
+
+        else:
+            speak("Sorry, I understood you, but I don't know how to reply in this language yet.", lang)
+
+    except Exception as e:
+        print("Error:", e)
+        speak("Sorry, something went wrong.", "en")
+
+    finally:
+        for f in ["audio.wav", "symptoms.wav"]:
+            if os.path.exists(f):
+                os.remove(f)
 
 def medextract_window():
     main_view.pack_forget()
@@ -155,11 +194,9 @@ def medextract_window():
         "Malayalam": "ml"
     }
 
-    CTkLabel(master=extract_view, text="OCR Translate", text_color="#016dff", anchor="w",
-             font=("Arial Bold", 24)).pack(anchor="w", pady=(20, 5), padx=(25, 0))
+    CTkLabel(master=extract_view, text="OCR Translate", text_color="#016dff", anchor="w", font=("Arial Bold", 24)).pack(anchor="w", pady=(20, 5), padx=(25, 0))
 
-    CTkLabel(master=extract_view, text="Select Language", text_color="#000000", anchor="w",
-             font=("Arial", 12)).pack(anchor="w", padx=(25, 0), pady=(5, 0))
+    CTkLabel(master=extract_view, text="Select Language", text_color="#000000", anchor="w", font=("Arial", 12)).pack(anchor="w", padx=(25, 0), pady=(5, 0))
     lang_option = StringVar(value="Tamil")
     lang_dropdown = CTkOptionMenu(master=extract_view, values=list(language_name_to_code.keys()), variable=lang_option)
     lang_dropdown.pack(padx=20, pady=(0, 10))
@@ -179,22 +216,17 @@ def medextract_window():
         translated_text_box.insert("0.0", translated)
         speak(translated, lang=selected_lang_code)
 
-    CTkButton(master=extract_view, text="Upload Image", fg_color="#016dff", font=("Arial Bold", 12),
-              text_color="#ffffff", width=225, command=browse_image).pack(pady=12, padx=10)
+    CTkButton(master=extract_view, text="Upload Image", fg_color="#016dff", font=("Arial Bold", 12), text_color="#ffffff", width=225, command=browse_image).pack(pady=12, padx=10)
 
-    CTkLabel(master=extract_view, text="Original Text", text_color="#000000", anchor="w",
-             font=("Arial", 12)).pack(anchor="w", padx=(25, 0))
+    CTkLabel(master=extract_view, text="Original Text", text_color="#000000", anchor="w", font=("Arial", 12)).pack(anchor="w", padx=(25, 0))
     original_text_box = CTkTextbox(master=extract_view, width=250, height=100)
     original_text_box.pack(padx=20, pady=5)
 
-    CTkLabel(master=extract_view, text="Translated Text", text_color="#000000", anchor="w",
-             font=("Arial", 12)).pack(anchor="w", padx=(25, 0))
+    CTkLabel(master=extract_view, text="Translated Text", text_color="#000000", anchor="w", font=("Arial", 12)).pack(anchor="w", padx=(25, 0))
     translated_text_box = CTkTextbox(master=extract_view, width=250, height=100)
     translated_text_box.pack(padx=20, pady=5)
 
-    CTkButton(master=extract_view, text="Back", fg_color="transparent", font=("Arial Bold", 10),
-              text_color="black", width=100, border_width=2, border_color='black', corner_radius=8,
-              command=lambda: [extract_view.pack_forget(), main_page()]).pack(pady=(10, 0))
+    CTkButton(master=extract_view, text="Back", fg_color="transparent", font=("Arial Bold", 10), text_color="black", width=100, border_width=2, border_color='black', corner_radius=8, command=lambda: [extract_view.pack_forget(), main_page()]).pack(pady=(10, 0))
 
 # ========== GUI SETUP ==========
 app = CTk()

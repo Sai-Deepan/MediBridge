@@ -50,19 +50,19 @@ def record_audio(filename="audio.wav", duration=5, fs=16000):
     audio = sd.rec(int(duration * fs), samplerate=fs, channels=1)
     sd.wait()
     wav.write(filename, fs, audio)
-    print("✅ Recording complete.")
+    print("Recording complete.")
 
 # Transcribe Function
 def transcribe_audio(filename="audio.wav"):
     segments, info = model.transcribe(filename, beam_size=5)
     full_text = ""
-    print(f"🧠 Detected language: {info.language}")
+    print(f"Detected language: {info.language}")
     for segment in segments:
         full_text += segment.text.strip() + " "
     return full_text.strip(), info.language
 
 # Main Loop
-print("🔁 Speak into the microphone. Say 'exit' (English), 'விடைபெறு' (Tamil), or 'अलविदा' (Hindi) to stop.\n")
+print("Speak into the microphone. Say 'exit' (English), 'விடைபெறு' (Tamil), or 'अलविदा' (Hindi) to stop.\n")
 
 try:
     while True:
@@ -82,7 +82,7 @@ try:
                 speak("Can you please mention a few symptoms?")
                 record_audio("symptoms.wav", duration=30)
                 symptom_text, _ = transcribe_audio("symptoms.wav")
-                print("📝 Symptoms described:", symptom_text)
+                print("Symptoms described:", symptom_text)
 
             elif lang == "ta":
                 speak("நீங்கள் நன்றாக இருக்கிறீர்கள் என கேட்டு மகிழ்ச்சி!", lang)
@@ -90,11 +90,11 @@ try:
                 speak("சில அறிகுறிகளைச் சொல்ல முடியுமா?", lang)
                 record_audio("symptoms.wav", duration=30)
                 symptom_text, symptom_lang = transcribe_audio("symptoms.wav")
-                print("📝 Symptoms described (TA):", symptom_text)
+                print("Symptoms described (TA):", symptom_text)
 
                 # Translate to English using deep-translator
                 translated = translator.translate(symptom_text)
-                print("🌐 Translated to English:", translated)
+                print("Translated to English:", translated)
 
             elif lang == "hi":
                 speak("आपसे यह सुनकर अच्छा लगा!", lang)
@@ -102,17 +102,17 @@ try:
                 speak("क्या आप कुछ लक्षण बता सकते हैं?", lang)
                 record_audio("symptoms.wav", duration=30)
                 symptom_text, symptom_lang = transcribe_audio("symptoms.wav")
-                print("📝 Symptoms described (HI):", symptom_text)
+                print("Symptoms described (HI):", symptom_text)
 
                 # Translate to English using deep-translator
                 translated = translator.translate(symptom_text)
-                print("🌐 Translated to English:", translated)
+                print("Translated to English:", translated)
 
             else:
                 speak("Sorry, I understood you, but I don't know how to reply in this language yet.", lang)
 
         except Exception as e:
-            print("❌ Error:", e)
+            print("Error:", e)
             speak("Sorry, something went wrong.", "en")
 
 finally:
