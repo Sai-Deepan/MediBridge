@@ -76,7 +76,6 @@
     {
       "source_language": "en",
       "target_language": "ta",
-      "translation_api_key": "<YOUR_API_KEY>",
       "voice_enabled": true
     }
     ```
@@ -117,7 +116,8 @@ MediBridge uses Optical Character Recognition (OCR) to convert medical documents
   ```
 
 - **MacOS (Using Homebrew):**
-  ```brew install tesseract
+  ```
+  brew install tesseract
   ```
 
 ### Step 2: Install Python OCR Packages
@@ -144,9 +144,11 @@ print(text)
 ```
 
 # Supported Languages & Accuracy
-- English ↔ Tamil (expandable to other Indian languages).
+- English
+- Tamil
+- Hindi
+ (expandable to other Indian languages).
 
-- Uses [Your Translation API] to maintain medical term accuracy.
 
 - OCR tuned for medical fonts and handwriting.
 
@@ -165,6 +167,7 @@ Effective communication in healthcare is crucial. MediBridge ensures patients an
 For questions, issues, or contributions, please open an issue or contact us via GitHub.
 
 Thank you for using MediBridge! Bridging language gaps in healthcare, one translation at a time.
+
 
 
 
