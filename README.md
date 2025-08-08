@@ -98,7 +98,8 @@ MediBridge uses Optical Character Recognition (OCR) to convert medical documents
   sudo apt update
   sudo apt install tesseract-ocr
 ```
-- **MacOs (Using Homebrew): **
+
+- **MacOS (Using Homebrew):**
 ```brew install tesseract
 ```
 
@@ -147,4 +148,5 @@ Effective communication in healthcare is crucial. MediBridge ensures patients an
 For questions, issues, or contributions, please open an issue or contact us via GitHub.
 
 Thank you for using MediBridge! Bridging language gaps in healthcare, one translation at a time.
+
 
