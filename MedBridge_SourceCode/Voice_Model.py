@@ -46,7 +46,7 @@ def speak(text, lang='en'):
 
 # Record Function
 def record_audio(filename="audio.wav", duration=5, fs=16000):
-    print("🎤 Recording...")
+    print("Recording...")
     audio = sd.rec(int(duration * fs), samplerate=fs, channels=1)
     sd.wait()
     wav.write(filename, fs, audio)
