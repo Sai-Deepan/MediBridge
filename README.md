@@ -28,6 +28,24 @@
 
 ---
 
+## Tech Stack
+
+### Frontend (User Interaction)
+- **Tkinter** — GUI framework for desktop user interface  
+- **SpeechRecognition** — For capturing and recognizing spoken input  
+- **pyttsx3** — Offline text-to-speech synthesis  
+
+### Backend (Core Logic & APIs)
+- **Python 3.10+** — Main programming language  
+- **Google Cloud Translation API** — For multilingual medical translation  
+- **pytesseract** — Python wrapper for Tesseract OCR engine  
+- **Tesseract OCR Engine** — For extracting text from medical images  
+- **Pillow (PIL)** — Image processing for OCR  
+- **Flask** — Lightweight API server (if applicable)  
+- **Requests** — HTTP requests to external APIs  
+
+---
+
 ## Getting Started
 
 ### Prerequisites
@@ -35,7 +53,6 @@
 - Python 3.10+
 - Tesseract OCR engine (for text extraction from images)
 - Required Python packages (listed in `requirements.txt`)
-- Translation API credentials (e.g., Google Cloud Translate or Azure Translator)
 
 ---
 
@@ -148,6 +165,7 @@ Effective communication in healthcare is crucial. MediBridge ensures patients an
 For questions, issues, or contributions, please open an issue or contact us via GitHub.
 
 Thank you for using MediBridge! Bridging language gaps in healthcare, one translation at a time.
+
 
 
 
