@@ -160,11 +160,17 @@ Effective communication in healthcare is crucial. MediBridge ensures patients an
 - Develop web and mobile app frontends.
 
 # Contributors
+- Deepan Sai
+- Shyam Ganesh V
+- Nithaesh
+- Vivek
+- Rohit
 
 # Contact & Support
 For questions, issues, or contributions, please open an issue or contact us via GitHub.
 
 Thank you for using MediBridge! Bridging language gaps in healthcare, one translation at a time.
+
 
 
 
