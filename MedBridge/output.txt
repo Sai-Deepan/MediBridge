@@ -1,9 +1,20 @@
-This is a lot of 12 point text to test the
-ocr code and see if it works on all types
-of file format.
+Prescription for Chest Pain
 
-The quick brown dog jumped over the
-lazy fox. The quick brown dog jumped
-over the lazy fox. The quick brown dog
-jumped over the lazy fox. The quick
-brown dog jumped over the lazy fox.
+Patient Name: Arjun
+
+Age: 46
+
+Date: 8/08/2025
+
+Diagnosis:
+
+Chest Pain — Differential diagnosis may include angina, myocardial infarction,
+
+gastroesophageal reflux, or musculoskeletal pain. Further diagnostic work-up is
+recommended.
+
+Prescribed Medications:
+Nitroglycerin : Before dinner
+Aspirin : After breakfast
+Metoprolol :After Dinner
+Omeprazole :Before breakfast
