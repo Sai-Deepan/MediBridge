@@ -11,15 +11,16 @@ from faster_whisper import WhisperModel
 import pygame
 import os
 import random
-from tkinter import filedialog, StringVar
+from tkinter import filedialog, StringVar, END
 import sys
 import io
+import subprocess
 
 # ========== TESSERACT SETUP ==========
 pytesseract.pytesseract.tesseract_cmd = r"C:\\Python_Libraries\\tesseract.exe"
 
 # ========== SPEECH SETUP ==========
-model = WhisperModel("base", device="cpu")
+model = WhisperModel("base", device="cpu", compute_type="int8")
 
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
@@ -75,10 +76,12 @@ def speak(text, lang='en'):
             pygame.mixer.music.load(filename)
             pygame.mixer.music.play()
             while pygame.mixer.music.get_busy():
-                continue
+                pygame.time.Clock().tick(10)
         finally:
+            pygame.mixer.music.stop()
             pygame.mixer.music.unload()
             os.remove(filename)
+            safe_reset_mixer()
 
 def record_audio(filename="audio.wav", duration=5, fs=16000):
     print("Recording...")
@@ -94,6 +97,15 @@ def transcribe_audio(filename="audio.wav"):
     for segment in segments:
         full_text += segment.text.strip() + " "
     return full_text.strip(), info.language
+
+# ========== PATCH FIX FOR BACKEND HANG ==========
+def safe_reset_mixer():
+    try:
+        pygame.mixer.stop()
+        pygame.mixer.quit()
+        pygame.mixer.init()
+    except Exception as e:
+        print(f"Mixer reset error: {e}")
 
 # ========== GUI FUNCTIONS ==========
 def quit_program():
@@ -116,46 +128,90 @@ def login():
 
 def main_page():
     frame.pack_forget()
-    global main_view, terminal_output_box
+    global main_view
     main_view = CTkFrame(master=app, width=300, height=480, fg_color="#ffffff")
     main_view.pack_propagate(0)
     main_view.pack(expand=True, side="right")
-    CTkLabel(master=main_view, text="Main Menu", text_color="#016dff", anchor="w", font=("Arial Bold", 24)).pack(anchor="w", pady=(30, 5), padx=(25, 0))
-    CTkButton(master=main_view, text="EchoCare", fg_color="#016dff", font=("Arial Bold", 12), text_color="#ffffff", width=225, command=echocare_voice_bot).pack(pady=10)
-    CTkButton(master=main_view, text="MedExtract", fg_color="#016dff", font=("Arial Bold", 12), text_color="#ffffff", width=225, command=medextract_window).pack(pady=10)
-    terminal_output_box = CTkTextbox(master=main_view, width=250, height=120)
-    terminal_output_box.pack(padx=10, pady=(10, 0))
+    CTkLabel(master=main_view, text="Main Menu", text_color="#016dff", anchor="w", font=("Arial Bold", 24)).pack(anchor="w", pady=(50, 5), padx=(25, 0))
+    CTkButton(master=main_view, text="EchoCare", fg_color="#016dff", font=("Arial Bold", 12), text_color="#ffffff", width=225, command=echocare_voice_bot).pack(pady=12, padx=10)
+    CTkButton(master=main_view, text="MedExtract", fg_color="#016dff", font=("Arial Bold", 12), text_color="#ffffff", width=225, command=medextract_window).pack(pady=12, padx=10)
+    CTkButton(master=main_view, text="Show Terminal Output", fg_color="#016dff", font=("Arial Bold", 12), text_color="#ffffff", width=225, command=show_terminal_output).pack(pady=12, padx=10)
     CTkButton(master=main_view, text="Quit", fg_color="transparent", font=("Arial Bold", 8), text_color="black", width=8, border_width=2, border_color='black', corner_radius=32, command=quit_program).pack(anchor="se", pady=(0, 20), padx=(0, 20))
 
-def echocare_voice_bot():
-    buffer = io.StringIO()
-    sys.stdout = buffer
-
+# Function to show terminal output in a CTkTextbox
+def show_terminal_output():
+    # Example: run 'dir' on Windows or 'ls' on Unix
+    command = 'dir' if os.name == 'nt' else 'ls'
     try:
-        record_audio("audio.wav", duration=5)
-        text, lang = transcribe_audio("audio.wav")
-        print(f"You said: {text}")
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        output = result.stdout if result.stdout else result.stderr
+    except Exception as e:
+        output = f"Error: {e}"
 
-        if lang == "en":
-            speak("What happened to your health?", lang)
-            speak("Mention a few symptoms.", lang)
-            record_audio("symptoms.wav", duration=30)
-            symptom_text, _ = transcribe_audio("symptoms.wav")
-            print("Symptoms:", symptom_text)
-        else:
-            speak("உங்களுக்கேன்னா ஆயிருக்கு?", lang)
-            speak("அறிகுறிகள் சொல்லுங்கள்.", lang)
-            record_audio("symptoms.wav", duration=30)
-            symptom_text, symptom_lang = transcribe_audio("symptoms.wav")
-            translated = translate_text(symptom_text, dest_lang="en")
-            print("Translated:", translated)
+    # Create a new window to show the output
+    output_window = CTkToplevel(app)
+    output_window.title("Terminal Output")
+    output_window.geometry("500x400")
+    textbox = CTkTextbox(output_window, width=480, height=350)
+    textbox.pack(padx=10, pady=10, fill="both", expand=True)
+    textbox.insert("0.0", output)
+    textbox.configure(state="disabled")
 
-    finally:
-        sys.stdout = sys.__stdout__
-        terminal_output = buffer.getvalue()
-        terminal_output_box.delete("0.0", END)
-        terminal_output_box.insert("0.0", terminal_output)
-        buffer.close()
+def echocare_voice_bot():
+    import threading
+    from tkinter import messagebox
+
+    def voice_bot_loop():
+        print("Speak into the microphone. Say 'exit' (English), 'விடைபெறு' (Tamil), or 'अलविदा' (Hindi) to stop.\n")
+        try:
+            while True:
+                record_audio("audio.wav", duration=5)
+                try:
+                    text, lang = transcribe_audio("audio.wav")
+                    print(f"🗣 You said: {text}")
+                    if "exit" in text.lower() or "விடைபெறு" in text or "अलविदा" in text:
+                        speak("Goodbye! Take care.", lang)
+                        break
+                    if lang == "en":
+                        speak("Nice to hear from you!", lang)
+                        speak("What happened to your health?")
+                        speak("Can you please mention a few symptoms?")
+                        record_audio("symptoms.wav", duration=10)
+                        symptom_text, _ = transcribe_audio("symptoms.wav")
+                        print("Symptoms described:", symptom_text)
+                    elif lang == "ta":
+                        speak("நீங்கள் நன்றாக இருக்கிறீர்கள் என கேட்டு மகிழ்ச்சி!", lang)
+                        speak("உங்கள் உடல்நிலைக்கு என்ன ஆச்சு?", lang)
+                        speak("சில அறிகுறிகளைச் சொல்ல முடியுமா?", lang)
+                        record_audio("symptoms.wav", duration=10)
+                        symptom_text, symptom_lang = transcribe_audio("symptoms.wav")
+                        print("Symptoms described (TA):", symptom_text)
+                        translated = GoogleTranslator(source='auto', target='en').translate(symptom_text)
+                        print("Translated to English:", translated)
+                    elif lang == "hi":
+                        speak("आपसे यह सुनकर अच्छा लगा!", lang)
+                        speak("आपके स्वास्थ्य को क्या हुआ?", lang)
+                        speak("क्या आप कुछ लक्षण बता सकते हैं?", lang)
+                        record_audio("symptoms.wav", duration=10)
+                        symptom_text, symptom_lang = transcribe_audio("symptoms.wav")
+                        print("Symptoms described (HI):", symptom_text)
+                        translated = GoogleTranslator(source='auto', target='en').translate(symptom_text)
+                        print("Translated to English:", translated)
+                    else:
+                        speak("Sorry, I understood you, but I don't know how to reply in this language yet.", lang)
+                except Exception as e:
+                    print("Error:", e)
+                    speak("Sorry, something went wrong.", "en")
+        finally:
+            # Cleanup audio files
+            if os.path.exists("audio.wav"):
+                os.remove("audio.wav")
+            if os.path.exists("symptoms.wav"):
+                os.remove("symptoms.wav")
+            messagebox.showinfo("EchoCare", "Voice bot session ended.")
+
+    # Run the voice bot in a separate thread to avoid freezing the GUI
+    threading.Thread(target=voice_bot_loop, daemon=True).start()
 
 def medextract_window():
     main_view.pack_forget()
@@ -171,8 +227,11 @@ def medextract_window():
         "Malayalam": "ml"
     }
 
-    CTkLabel(master=extract_view, text="OCR Translate", text_color="#016dff", anchor="w", font=("Arial Bold", 24)).pack(anchor="w", pady=(20, 5), padx=(25, 0))
-    CTkLabel(master=extract_view, text="Select Language", text_color="#000000", anchor="w", font=("Arial", 12)).pack(anchor="w", padx=(25, 0), pady=(5, 0))
+    CTkLabel(master=extract_view, text="OCR Translate", text_color="#016dff", anchor="w",
+             font=("Arial Bold", 24)).pack(anchor="w", pady=(20, 5), padx=(25, 0))
+
+    CTkLabel(master=extract_view, text="Select Language", text_color="#000000", anchor="w",
+             font=("Arial", 12)).pack(anchor="w", padx=(25, 0), pady=(5, 0))
     lang_option = StringVar(value="Tamil")
     lang_dropdown = CTkOptionMenu(master=extract_view, values=list(language_name_to_code.keys()), variable=lang_option)
     lang_dropdown.pack(padx=20, pady=(0, 10))
@@ -192,14 +251,23 @@ def medextract_window():
         translated_text_box.insert("0.0", translated)
         speak(translated, lang=selected_lang_code)
 
-    CTkButton(master=extract_view, text="Upload Image", fg_color="#016dff", font=("Arial Bold", 12), text_color="#ffffff", width=225, command=browse_image).pack(pady=12, padx=10)
-    CTkLabel(master=extract_view, text="Original Text", text_color="#000000", anchor="w", font=("Arial", 12)).pack(anchor="w", padx=(25, 0))
+    CTkButton(master=extract_view, text="Upload Image", fg_color="#016dff", font=("Arial Bold", 12),
+              text_color="#ffffff", width=225, command=browse_image).pack(pady=12, padx=10)
+
+    CTkLabel(master=extract_view, text="Original Text", text_color="#000000", anchor="w",
+             font=("Arial", 12)).pack(anchor="w", padx=(25, 0))
     original_text_box = CTkTextbox(master=extract_view, width=250, height=100)
     original_text_box.pack(padx=20, pady=5)
-    CTkLabel(master=extract_view, text="Translated Text", text_color="#000000", anchor="w", font=("Arial", 12)).pack(anchor="w", padx=(25, 0))
+
+    CTkLabel(master=extract_view, text="Translated Text", text_color="#000000", anchor="w",
+             font=("Arial", 12)).pack(anchor="w", padx=(25, 0))
     translated_text_box = CTkTextbox(master=extract_view, width=250, height=100)
     translated_text_box.pack(padx=20, pady=5)
-    CTkButton(master=extract_view, text="Back", fg_color="transparent", font=("Arial Bold", 10), text_color="black", width=100, border_width=2, border_color='black', corner_radius=8, command=lambda: [extract_view.pack_forget(), main_page()]).pack(pady=(10, 0))
+
+    CTkButton(master=extract_view, text="Back", fg_color="transparent", font=("Arial Bold", 10),
+              text_color="black", width=100, border_width=2, border_color='black', corner_radius=8,
+              command=lambda: [extract_view.pack_forget(), main_page()]).pack(pady=(10, 0))
+
 
 # ========== GUI SETUP ==========
 app = CTk()
@@ -217,17 +285,29 @@ frame = CTkFrame(master=app, width=300, height=480, fg_color="#ffffff")
 frame.pack_propagate(0)
 frame.pack(expand=True, side="right")
 
-CTkLabel(master=frame, text="Welcome Back!", text_color="#016dff", anchor="w", font=("Arial Bold", 24)).pack(anchor="w", pady=(50, 5), padx=(25, 0))
-CTkLabel(master=frame, text="Sign into your Account.", text_color="#7E7E7E", anchor="w", font=("Arial Bold", 12)).pack(anchor="w", padx=(25, 0))
-CTkLabel(master=frame, text="  Username:", text_color="#016dff", anchor="w", font=("Arial Bold", 14), image=user_icon, compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
-entry_name = CTkEntry(master=frame, width=225, fg_color="#EEEEEE", border_color="#016dff", border_width=1, text_color="#000000", placeholder_text="Ex: Mark")
+CTkLabel(master=frame, text="Welcome Back!", text_color="#016dff", anchor="w", font=("Arial Bold", 24)).pack(anchor="w",
+                                                                                                             pady=(50,
+                                                                                                                   5),
+                                                                                                             padx=(25,
+                                                                                                                   0))
+CTkLabel(master=frame, text="Sign into your Account.", text_color="#7E7E7E", anchor="w", font=("Arial Bold", 12)).pack(
+    anchor="w", padx=(25, 0))
+CTkLabel(master=frame, text="  Username:", text_color="#016dff", anchor="w", font=("Arial Bold", 14), image=user_icon,
+         compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+entry_name = CTkEntry(master=frame, width=225, fg_color="#EEEEEE", border_color="#016dff", border_width=1,
+                      text_color="#000000", placeholder_text="Ex: Mark")
 entry_name.pack(anchor="w", padx=(25, 0))
-CTkLabel(master=frame, text="  Password:", text_color="#016dff", anchor="w", font=("Arial Bold", 14), image=password_icon, compound="left").pack(anchor="w", pady=(21, 0), padx=(25, 0))
-entry_pas = CTkEntry(master=frame, width=225, fg_color="#EEEEEE", border_color="#016dff", border_width=1, text_color="#000000", show="*", placeholder_text="ex: 9624")
+CTkLabel(master=frame, text="  Password:", text_color="#016dff", anchor="w", font=("Arial Bold", 14),
+         image=password_icon, compound="left").pack(anchor="w", pady=(21, 0), padx=(25, 0))
+entry_pas = CTkEntry(master=frame, width=225, fg_color="#EEEEEE", border_color="#016dff", border_width=1,
+                     text_color="#000000", show="*", placeholder_text="ex: 9624")
 entry_pas.pack(anchor="w", padx=(25, 0))
 login_message = CTkLabel(master=frame, text="", text_color="red", anchor="w", font=("Arial Bold", 12))
 login_message.pack(anchor="w", pady=(10, 0), padx=(25, 0))
-CTkButton(master=frame, text="Login", fg_color="#016dff", font=("Arial Bold", 12), text_color="#ffffff", width=225, command=login).pack(anchor="w", pady=(25, 0), padx=(25, 0))
-CTkButton(master=frame, text="Quit", fg_color="transparent", font=("Arial Bold", 8), text_color="black", width=8, border_width=2, border_color='black', corner_radius=32, command=quit_program).pack(anchor="se", pady=(30, 20), padx=(0, 50))
+CTkButton(master=frame, text="Login", fg_color="#016dff", font=("Arial Bold", 12), text_color="#ffffff", width=225,
+          command=login).pack(anchor="w", pady=(25, 0), padx=(25, 0))
+CTkButton(master=frame, text="Quit", fg_color="transparent", font=("Arial Bold", 8), text_color="black", width=8,
+          border_width=2, border_color='black', corner_radius=32, command=quit_program).pack(anchor="se", pady=(30, 20),
+                                                                                             padx=(0, 50))
 
 app.mainloop()
