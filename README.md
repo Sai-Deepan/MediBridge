@@ -16,8 +16,9 @@
 
 ## Project Structure
 
-- `MedBridge/` – Core translation engine handling text and voice translation.
-- `MedVoiceAid/` – Voice interface module for speech recognition and synthesis.
+- `MedBridge_Source.py` – Core translation engine handling text and voice translation.
+- `Voice_Model.py` – Voice interface module for speech recognition and synthesis.
+- `OCR_Model.py` – Built to extract text from Prescription.
 - OCR functionality integrated using Tesseract OCR and `pytesseract`.
 
 ---
@@ -29,19 +30,16 @@ https://youtu.be/DDzoH_HGP9g
 ## Tech Stack
 
 ### Frontend (User Interaction)
-- **Tkinter** — GUI framework for desktop user interface  
+- **Custom Tkinter** — GUI framework for desktop user interface  
 - **SpeechRecognition** — For capturing and recognizing spoken input  
 - **pyttsx3** — Offline text-to-speech synthesis  
 
 ### Backend (Core Logic & APIs)
 - **Python 3.10+** — Main programming language  
-- **Google Cloud Translation API** — For multilingual medical translation  
+- **Google Cloud Translation** — For multilingual medical translation  
 - **pytesseract** — Python wrapper for Tesseract OCR engine  
 - **Tesseract OCR Engine** — For extracting text from medical images  
-- **Pillow (PIL)** — Image processing for OCR  
-- **Flask** — Lightweight API server (if applicable)  
-- **Requests** — HTTP requests to external APIs  
-
+- **Pillow (PIL)** — Image processing for OCR    
 ---
 
 ## Getting Started
@@ -82,24 +80,19 @@ https://youtu.be/DDzoH_HGP9g
  
 ### Usage
 
-- **Text Translation**
-    ```bash
-    python MedBridge/translate.py --text "Do you have any allergies?"
-    ```
+- **OCR + Translation**
+    Pass images of medical documents to the OCR module to extract and translate text.
 
 - **Voice Translation**
     ```bash
     python MedVoiceAid/voice_translate.py
     ```
-
-- **OCR + Translation**
-    Pass images of medical documents to the OCR module to extract and translate text.
-
 ---
 
 ## OCR Setup Instructions
 
 MediBridge uses Optical Character Recognition (OCR) to convert medical documents and images into text for translation.
+"Use Headphones for better voice detection"
 
 ### Step 1: Install Tesseract OCR Engine
 
@@ -158,18 +151,22 @@ Effective communication in healthcare is crucial. MediBridge ensures patients an
 - Offline translation capability.
 - Integrate with Electronic Health Record (EHR) systems.
 - Develop web and mobile app frontends.
+- Improve response capabilities
 
 # Contributors
-- Deepan Sai
-- Shyam Ganesh V
-- Nithaesh
-- Vivek
-- Rohit
+- Deepan Sai (skdeepan.sai@gmail.com)
+- Shyam Ganesh V ()
+- Nithaesh (nithaesh.r@gmail.com)
+- Vivek ()
+- Rohit ()
 
 # Contact & Support
 For questions, issues, or contributions, please open an issue or contact us via GitHub.
 
 Thank you for using MediBridge! Bridging language gaps in healthcare, one translation at a time.
+
+
+
 
 
 
