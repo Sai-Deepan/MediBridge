@@ -80,7 +80,9 @@ MedExtract
 
 3. Install and configure Tesseract OCR (see **OCR Setup** below).
 
-4. Configure translation API keys in `config.json` (copy from `config.example.json`):
+4. Add Tesseract Path to the TESSERACT SETUP section of the project
+   
+5. Configure translation API keys in `config.json` (copy from `config.example.json`):
     ```json
     {
       "source_language": "en",
@@ -177,6 +179,7 @@ Effective communication in healthcare is crucial. MediBridge ensures patients an
 For questions, issues, or contributions, please open an issue or contact us via GitHub.
 
 Thank you for using MediBridge! Bridging language gaps in healthcare, one translation at a time.
+
 
 
 
