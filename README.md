@@ -37,7 +37,8 @@ EchoCare
 
 MedExtract 
 
-<img width="400" height="380" alt="Screenshot 2025-08-10 003606" src="https://github.com/user-attachments/assets/a1425ede-5b6e-4ed8-94ca-8cd20b4c7a16" />
+<img width="400" height="380" alt="Screenshot 2025-08-10 004046" src="https://github.com/user-attachments/assets/e2ad337c-b034-40d3-875a-e8ba8b37759c" />
+
 
 ## Tech Stack
 
@@ -176,6 +177,7 @@ Effective communication in healthcare is crucial. MediBridge ensures patients an
 For questions, issues, or contributions, please open an issue or contact us via GitHub.
 
 Thank you for using MediBridge! Bridging language gaps in healthcare, one translation at a time.
+
 
 
 
