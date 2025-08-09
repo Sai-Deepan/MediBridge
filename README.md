@@ -32,6 +32,7 @@ https://youtu.be/DDzoH_HGP9g
 <img width="450" height="380" alt="Screenshot 2025-08-08 120220" src="https://github.com/user-attachments/assets/192b4d22-e1e8-4832-9987-b10ece3bcb4a"/>
 
 EchoCare
+
 <img width="450" height="150" alt="Screenshot 2025-08-08 084424" src="https://github.com/user-attachments/assets/30491354-8e8a-4438-84aa-0e47336cb73c"/>
 
 
@@ -172,6 +173,7 @@ Effective communication in healthcare is crucial. MediBridge ensures patients an
 For questions, issues, or contributions, please open an issue or contact us via GitHub.
 
 Thank you for using MediBridge! Bridging language gaps in healthcare, one translation at a time.
+
 
 
 
